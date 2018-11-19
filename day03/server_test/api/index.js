@@ -15,5 +15,6 @@ module.exports = {
     update:`${path}tags/update?`,
     delete:`${path}tags/delete?`,
 
-  }
+  },
+  message:`${path}message/mass/sendall?`
 }
