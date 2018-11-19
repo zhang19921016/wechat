@@ -91,33 +91,107 @@ class Wechat {
   }
   //自定义创建菜单
   async createMenu (menu) {
-    //获取access_token
-    const {access_token} = await this.fetchAccessToken();
-    //定义一个url地址
-    const url = `${api.menu.creat}access_token=${access_token}`
-    //发送请求
-    const result = await rp({method:'POST',url,json:true,body:menu});
-    return result;
+   try{
+     //获取access_token
+     const {access_token} = await this.fetchAccessToken();
+     //定义一个url地址
+     const url = `${api.menu.creat}access_token=${access_token}`
+     //发送请求
+     const result = await rp({method:'POST',url,json:true,body:menu});
+     return result;
+   }catch(e){
+     console.log('这是createMenu出的错误'+e);
+   }
   }
   //删除菜单
   async deleteMenu () {
-    //获取access_token
-    const {access_token}  = await this.fetchAccessToken();
-    const url = `${api.menu.delete}access_token=${access_token}`
-    //发送请求
-    const result = rp({method:'GET',url,json:true});
-    return result;
+    try{
+      //获取access_token
+      const {access_token}  = await this.fetchAccessToken();
+      const url = `${api.menu.delete}access_token=${access_token}`
+      //发送请求
+      const result = rp({method:'GET',url,json:true});
+      return result;
+    }catch(e){
+      console.log('这是deleteMenu出的错误'+e);
+    }
   }
+  //用户管理
+  //创建用户标签
+  async createUsersTag (name) {
+    try{
+      //获取access_token
+      const {access_token} = await this.fetchAccessToken();
+      //定义一个请求地址
+      const url = `${api.tag.create}access_token=${access_token}`
+      //发送请求
+      const result = await rp({method:'POST',url,json:true,body:{tag:{name}}});
+      return result;
+    }catch(e){
+      console.log('这是createUsersTa出的错误'+e);
+    }
+  }
+  //获取公众号已创建的标签
+  async getUsersTag () {
+   try{
+     //获取access_token
+     const {access_token} = await this.fetchAccessToken();
+     //定义一个请求地址
+     const url = `${api.tag.get}access_token=${access_token}`
+     //发送请求
+     const result = await rp({method:'GET',url,json:true});
+     return result;
+   }catch(e){
+     console.log('这是getUsersTag出的错误'+e);
+   }
+  }
+  //编辑标签
+  async updateUsersTag (id,name) {
+   try{
+     //获取access_token
+     const {access_token} = await this.fetchAccessToken();
+     //定义一个请求地址
+     const url = `${api.tag.update}access_token=${access_token}`
+     //发送请求
+     const result = await rp({method:'POST',url,json:true,body:{tag:{id,name}}});
+     return result;
+   }catch(e){
+     console.log('这是updateUsersTag出的错误'+e);
+   }
+  }
+  //删除标签
+  async deleteUsersTag (id) {
+    try{
+      //获取access_token
+      const {access_token} = await this.fetchAccessToken();
+      //定义一个请求地址
+      const url = `${api.tag.delete}access_token=${access_token}`
+      //发送请求
+      const result = await rp({method:'POST',url,json:true,body:{tag:{id}}});
+      return result;
+    }catch(e){
+      console.log('这是deleteUsersTag出的错误'+e);
+    }
+  }
+
 }
 
 
 
 (async () => {
   const w = new Wechat();
-  let result = await w.deleteMenu();
+  /*let result = await w.deleteMenu();
   console.log(result);
   result = await w.createMenu(menu);
   console.log('==============');
-  console.log(result);
+  console.log(result);*/
+  // const result1 = await w.createUsersTag('湖南');
+  // console.log(result1);
+
+  const result2 = await w.updateUsersTag(100,'河北')
+  const result3 = await w.getUsersTag();
+  console.log(result3);
+  const result4 = await w.deleteUsersTag(101);
+  console.log(result4);
 
 })()
