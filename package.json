@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/zhang19921016/wechat#readme",
   "dependencies": {
+    "ejs": "^2.6.1",
     "express": "^4.16.4",
     "install": "^0.12.2",
     "npm": "^6.4.1",

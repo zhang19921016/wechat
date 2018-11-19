@@ -16,6 +16,9 @@ const {appID,appsecret} = require('../config')
 const menu = require('./menu')
 //引入api
 const api = require('../api')
+//引入读写功能
+const {writeFileAsync,readFileAsync} = require('../format/method')
+
 //封装一个类
 class Wechat {
   //获取access_token
@@ -30,29 +33,13 @@ class Wechat {
     return result;
   }
   //保存access_token
-  saveAccessToken (filePath,accessToken) {
-    return new Promise((resolve,reject) => {
-      writeFile(filePath,JSON.stringify(accessToken),err => {
-        if (!err) {
-          resolve();
-        }else{
-          reject('这是saveAccessToken时的错误' + err);
-        }
-      })
-    })
+  saveAccessToken (filePath,data) {
+    return writeFileAsync (filePath,data)
+
   }
   //读取access_token
   readAccessToken (filePath) {
-    return new Promise((resolve,reject) => {
-      readFile(filePath,(err,data) => {
-        if (!err) {
-          const result = JSON.parse(data.toString())
-          resolve(result);
-        }else{
-          reject('这是readAccessToken时的错误' + err);
-        }
-      })
-    })
+    return readFileAsync (filePath);
   }
   //access_token是否过期
   isValidAccessToken ({expires_in}) {
@@ -89,76 +76,66 @@ class Wechat {
         return Promise.resolve(res);
       })
   }
-  //获取ticket
+
+
   async getTicket () {
-    //定义一个请求地址
-    const url = `${api.access_token}appid=${appID}&secret=${appsecret}`;
+    //获取ticket
+    const {access_token} = await this.fetchAccessToken();
+    //定义请求地址
+    const url = `${api.ticket}access_token=${access_token}`;
     //发送请求
-    const result = await rp({method:'GET',url,json:true});
-    console.log(result);
-    //设置过期时间
-    result.expires_in = Date.now() + 7200000 - 300000;
-    return result;
+    const result = await rp({method: 'GET', url, json: true});
+    return {
+      ticket: result.ticket,
+      ticket_expires_in: Date.now() + 7200000 - 300000
+    };
   }
-  //保存ticket
-  saveTicket (filePath,accessToken) {
-    return new Promise((resolve,reject) => {
-      writeFile(filePath,JSON.stringify(accessToken),err => {
-        if (!err) {
-          resolve();
-        }else{
-          reject('这是saveAccessToken时的错误' + err);
-        }
-      })
-    })
+
+  saveTicket (filePath, ticket) {
+    return writeFileAsync(filePath, ticket);
   }
-  //读取ticket
+
   readTicket (filePath) {
-    return new Promise((resolve,reject) => {
-      readFile(filePath,(err,data) => {
-        if (!err) {
-          const result = JSON.parse(data.toString())
-          resolve(result);
-        }else{
-          reject('这是readAccessToken时的错误' + err);
-        }
-      })
-    })
+    return readFileAsync(filePath);
   }
-  //ticket是否过期
-  isValidTicket ({expires_in}) {
-    return Date.now() < expires_in;
+
+  isValidTicket ({ticket_expires_in}) {
+    return Date.now() < ticket_expires_in;
   }
-  //返回有效的ticket
+
   fetchTicket () {
-    if (this.access_token && this.expires_in && this.isValidAccessToken(this)) {
-      console.log('这是非第一次')
-      return Promise.resolve({access_token:this.access_token,expires_in:this.expires_in});
+    if (this.ticket && this.ticket_expires_in && this.isValidTicket(this)) {
+      console.log('非第一次');
+      return Promise.resolve({ticket: this.ticket, ticket_expires_in: this.ticket_expires_in});
     }
-    return this.readAccessToken('accessToken.txt')
+
+    return this.readTicket('./ticket.txt')
       .then(async res => {
-        //本地有access_token
-        //判断是否过期
-        if (this.isValidAccessToken(res)) {
-          //没过期
+        if (this.isValidTicket(res)) {
+          //没有过期，直接使用
+          //作为then函数返回值， promise对象包着res
           return res;
-        }else{
-          //过期
-          const result =await this.getAccessToken();
-          await this.saveAccessToken('accessToken.txt',result);
-          return result;
+        } else {
+          //过期了
+          const ticket = await this.getTicket();
+          await this.saveTicket('./ticket.txt', ticket);
+          //作为then函数返回值， promise对象包着accessToken
+          return ticket;
         }
       })
       .catch(async err => {
-        const result =await this.getAccessToken();
-        await this.saveAccessToken('accessToken.txt',result);
-        return result;
+        const ticket = await this.getTicket();
+        await this.saveTicket('./ticket.txt', ticket);
+        return ticket;
       })
       .then(res => {
-        this.access_token = res.access_token;
-        this.expires_in = res.expires_in;
+        //不管上面成功或者失败都会来到这
+        this.ticket = res.ticket;
+        this.ticket_expires_in = res.ticket_expires_in;
+
         return Promise.resolve(res);
       })
+
   }
   //自定义创建菜单
   async createMenu (menu) {
@@ -259,10 +236,16 @@ class Wechat {
   // const result1 = await w.createUsersTag('湖南');
   // console.log(result1);
 
-  const result2 = await w.updateUsersTag(100,'河北')
+/*  const result2 = await w.updateUsersTag(100,'湖北')
   const result3 = await w.getUsersTag();
   console.log(result3);
-  const result4 = await w.deleteUsersTag(101);
-  console.log(result4);
+  const result4 = await w.deleteUsersTag(102);
+  console.log(result4);*/
+  const result1 = await w.fetchAccessToken()
+  console.log(result1);
+  const result2 = await w.fetchTicket();
+  console.log(result2);
 
 })()
+
+module.exports = Wechat;
