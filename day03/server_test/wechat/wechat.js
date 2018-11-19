@@ -77,7 +77,6 @@ class Wechat {
       })
   }
 
-
   async getTicket () {
     //获取ticket
     const {access_token} = await this.fetchAccessToken();
@@ -221,6 +220,34 @@ class Wechat {
       console.log('这是deleteUsersTag出的错误'+e);
     }
   }
+  //获取标签下粉丝列表
+  async getUsersByTag (tagid,next_openid='') {
+    try{
+      //获取access_token
+      const {access_token} = await this.fetchAccessToken();
+      //定义一个请求地址
+      const url = `${api.tag.get}access_token=${access_token}`
+      //发送请求
+      const result = await rp({method:'POST',url,json:true,body:{tagid,next_openid}});
+      return result;
+    }catch(e){
+      console.log('这是getUsersByTag出的错误'+e);
+    }
+  }
+  //群发消息
+  async sendAllByTag (option) {
+    try{
+      //获取access_token
+      const {access_token} = await this.fetchAccessToken();
+      //定义一个请求地址
+      const url = `${api.message}access_token=${access_token}`
+      //发送请求
+      const result = await rp({method:'POST',url,json:true,body:option});
+      return result;
+    }catch(e){
+      console.log('这是sendAllByTag出的错误'+e);
+    }
+  }
 
 }
 
@@ -228,23 +255,17 @@ class Wechat {
 
 (async () => {
   const w = new Wechat();
-  /*let result = await w.deleteMenu();
-  console.log(result);
-  result = await w.createMenu(menu);
-  console.log('==============');
-  console.log(result);*/
-  // const result1 = await w.createUsersTag('湖南');
-  // console.log(result1);
-
-/*  const result2 = await w.updateUsersTag(100,'湖北')
-  const result3 = await w.getUsersTag();
-  console.log(result3);
-  const result4 = await w.deleteUsersTag(102);
-  console.log(result4);*/
-  const result1 = await w.fetchAccessToken()
-  console.log(result1);
-  const result2 = await w.fetchTicket();
-  console.log(result2);
+  const resule = await w.sendAllByTag ({
+    "filter":{
+      "is_to_all":false,
+      "tag_id":2
+    },
+    "text":{
+      "content":"到不了的都是远方"
+    },
+    "msgtype":"text"
+  })
+  console.log(resule);
 
 })()
 
