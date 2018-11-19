@@ -1,6 +1,7 @@
 /**
  * Created by 94326 on 2018/11/17.
  */
+const {url} = require('../config');
 module.exports = (message) => {
   //初始化一个data
   let data = '';
@@ -22,6 +23,8 @@ module.exports = (message) => {
       options.picUrl = 'https://b-gold-cdn.xitu.io/v3/static/img/logo.a7995ad.svg';
       options.url = 'https://juejin.im/explore/all';
 
+    }else if (message.Content === '3') {
+      data = `<a href="${url}/search">search页面</a>`;
     }else{
       data = '我听不懂你在说什么?'
     }

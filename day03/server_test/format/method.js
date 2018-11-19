@@ -3,6 +3,8 @@
  */
 //引入一个将xml转换为js的模板
 const parseString = require('xml2js').parseString;
+//引入fs
+const {writeFile, readFile} = require('fs');
 module.exports = {
   getUserDataAsync (req) {
     return new Promise((resolve) => {
@@ -39,5 +41,31 @@ module.exports = {
     }
 
     return result;
+  },
+  //读写access_token和ticket
+  //读
+  writeFileAsync (filePath,data) {
+    return new Promise((resolve,reject) => {
+      writeFile(filePath,JSON.stringify(data),err => {
+        if (!err) {
+          resolve();
+        }else{
+          reject('这是writeFileAsync时的错误' + err);
+        }
+      })
+    })
+  },
+  //写
+  readFileAsync (filePath) {
+    return new Promise((resolve,reject) => {
+      readFile(filePath,(err,data) => {
+        if (!err) {
+          const result = JSON.parse(data.toString())
+          resolve(result);
+        }else{
+          reject('这是readFileAsync时的错误' + err);
+        }
+      })
+    })
   }
 }
