@@ -9,7 +9,7 @@
 //引入发送请求的包
 const rp = require('request-promise-native');
 //引入fs
-const {writeFile, readFile} = require('fs');
+const {writeFile, readFile, createReadStream} = require('fs');
 //引入confix
 const {appID,appsecret} = require('../config')
 //引入menu
@@ -248,14 +248,95 @@ class Wechat {
       console.log('这是sendAllByTag出的错误'+e);
     }
   }
+  //新增永久素材
+  async uploadMaterial (type, material, body) {
+    try {
+      //获取access_token
+      const {access_token} = await this.fetchAccessToken();
+      //定义请求地址
+      let url = '';
+      let options = {method: 'POST', json: true};
 
+      if (type === 'news') {
+        url = `${api.media.upNews}access_token=${access_token}`;
+        //请求体参数
+        options.body = material;
+      } else if (type === 'pic') {
+        url = `${api.media.upLoadimg}access_token=${access_token}`;
+        //以form表单上传
+        options.formData = {
+          media: createReadStream(material)
+        }
+      } else {
+        url = `${api.media.upLoadOthers}access_token=${access_token}&type=${type}`;
+        //以form表单上传
+        options.formData = {
+          media: createReadStream(material)
+        }
+
+        if (type === 'video') {
+          options.body = body;
+        }
+
+      }
+      options.url = url;
+      //发送请求
+      return await rp(options);
+
+    } catch (e) {
+      return 'uploadMaterial方法出了问题' + e;
+    }
+  }
 }
-
-
 
 (async () => {
   const w = new Wechat();
-  const resule = await w.sendAllByTag ({
+  //获取media_id
+  const result1 = await w.uploadMaterial('image','./1.jpg')
+  console.log(result1);
+  //获取url
+  const result2 = await w.uploadMaterial('pic','./2.jpg')
+  console.log(result2);
+  //上传图文消息
+  const result3 = await w.uploadMaterial('news',{
+    "articles": [{
+      "title": '风景独好',
+      "thumb_media_id": result1.media_id,
+      "author": '张冬冬',
+      "digest": '测试',
+      "show_cover_pic": 1,
+      "content": `<!DOCTYPE html>
+                  <html lang="en">
+                  <head>
+                    <meta charset="UTF-8">
+                    <title>Title</title>
+                  </head>
+                  <body>
+                    <h1>风景</h1>
+                    <img src="${result2.url}">
+                  </body>
+                  </html>`,
+      "content_source_url":'https://www.douban.com/interest/2/16/',
+      "need_open_comment":1,
+      "only_fans_can_comment":1
+     }
+    ]
+  })
+  console.log(result3);
+  //删除菜单，再重新创建
+  let result = await w.deleteMenu();
+  console.log(result);
+  result = await w.createMenu(require('./menu'));
+  console.log(result);
+})()
+
+
+
+
+/*
+(async () => {
+  const w = new Wechat();
+  /!*const resule = await w.sendAllByTag ({
     "filter":{
       "is_to_all":false,
       "tag_id":2
@@ -265,8 +346,9 @@ class Wechat {
     },
     "msgtype":"text"
   })
-  console.log(resule);
+  console.log(resule);*!/
 
 })()
+*/
 
 module.exports = Wechat;

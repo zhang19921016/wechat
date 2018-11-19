@@ -16,5 +16,10 @@ module.exports = {
     delete:`${path}tags/delete?`,
 
   },
-  message:`${path}message/mass/sendall?`
+  message:`${path}message/mass/sendall?`,
+  media:{
+    upNews:`${path}material/add_news?`,
+    upLoadimg:`${path}media/uploadimg?`,
+    upLoadOthers:`${path}material/add_material?`
+  }
 }
