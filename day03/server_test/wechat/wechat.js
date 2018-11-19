@@ -14,12 +14,14 @@ const {writeFile, readFile} = require('fs');
 const {appID,appsecret} = require('../config')
 //引入menu
 const menu = require('./menu')
+//引入api
+const api = require('../api')
 //封装一个类
 class Wechat {
   //获取access_token
   async getAccessToken () {
     //定义一个请求地址
-    const url = `https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=${appID}&secret=${appsecret}`;
+    const url = `${api.access_token}appid=${appID}&secret=${appsecret}`;
     //发送请求
     const result = await rp({method:'GET',url,json:true});
     console.log(result);
@@ -92,7 +94,7 @@ class Wechat {
     //获取access_token
     const {access_token} = await this.fetchAccessToken();
     //定义一个url地址
-    const url = `https://api.weixin.qq.com/cgi-bin/menu/create?access_token=${access_token}`
+    const url = `${api.menu.creat}access_token=${access_token}`
     //发送请求
     const result = await rp({method:'POST',url,json:true,body:menu});
     return result;
@@ -101,7 +103,7 @@ class Wechat {
   async deleteMenu () {
     //获取access_token
     const {access_token}  = await this.fetchAccessToken();
-    const url = `https://api.weixin.qq.com/cgi-bin/menu/delete?access_token=${access_token}`
+    const url = `${api.menu.delete}access_token=${access_token}`
     //发送请求
     const result = rp({method:'GET',url,json:true});
     return result;
