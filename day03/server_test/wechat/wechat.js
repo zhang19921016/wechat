@@ -89,6 +89,77 @@ class Wechat {
         return Promise.resolve(res);
       })
   }
+  //获取ticket
+  async getTicket () {
+    //定义一个请求地址
+    const url = `${api.access_token}appid=${appID}&secret=${appsecret}`;
+    //发送请求
+    const result = await rp({method:'GET',url,json:true});
+    console.log(result);
+    //设置过期时间
+    result.expires_in = Date.now() + 7200000 - 300000;
+    return result;
+  }
+  //保存ticket
+  saveTicket (filePath,accessToken) {
+    return new Promise((resolve,reject) => {
+      writeFile(filePath,JSON.stringify(accessToken),err => {
+        if (!err) {
+          resolve();
+        }else{
+          reject('这是saveAccessToken时的错误' + err);
+        }
+      })
+    })
+  }
+  //读取ticket
+  readTicket (filePath) {
+    return new Promise((resolve,reject) => {
+      readFile(filePath,(err,data) => {
+        if (!err) {
+          const result = JSON.parse(data.toString())
+          resolve(result);
+        }else{
+          reject('这是readAccessToken时的错误' + err);
+        }
+      })
+    })
+  }
+  //ticket是否过期
+  isValidTicket ({expires_in}) {
+    return Date.now() < expires_in;
+  }
+  //返回有效的ticket
+  fetchTicket () {
+    if (this.access_token && this.expires_in && this.isValidAccessToken(this)) {
+      console.log('这是非第一次')
+      return Promise.resolve({access_token:this.access_token,expires_in:this.expires_in});
+    }
+    return this.readAccessToken('accessToken.txt')
+      .then(async res => {
+        //本地有access_token
+        //判断是否过期
+        if (this.isValidAccessToken(res)) {
+          //没过期
+          return res;
+        }else{
+          //过期
+          const result =await this.getAccessToken();
+          await this.saveAccessToken('accessToken.txt',result);
+          return result;
+        }
+      })
+      .catch(async err => {
+        const result =await this.getAccessToken();
+        await this.saveAccessToken('accessToken.txt',result);
+        return result;
+      })
+      .then(res => {
+        this.access_token = res.access_token;
+        this.expires_in = res.expires_in;
+        return Promise.resolve(res);
+      })
+  }
   //自定义创建菜单
   async createMenu (menu) {
    try{
