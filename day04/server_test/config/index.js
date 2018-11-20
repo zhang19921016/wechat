@@ -6,5 +6,5 @@ module.exports = {
   appID: 'wxc3bcaba30b42a8c7',
   appsecret: 'b62256ae4e9775086e20d9ee2fdb8df4',
   token: 'zdd0810test',
-  url:'http://ccfcb52b.ngrok.io'
+  url:'http://1c2e95b6.ngrok.io'
 }
