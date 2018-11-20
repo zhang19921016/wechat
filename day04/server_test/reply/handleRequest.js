@@ -44,7 +44,7 @@ module.exports = () => {
       const result = await parseXMLDataAsync(xmlData);
       //格式转换
       const message = formatMessage(result);
-      let options = reply(message);
+      let options = await reply(message);
       let replyMessage = template(options);
       console.log(replyMessage);
       res.send(replyMessage);

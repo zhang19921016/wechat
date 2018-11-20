@@ -2,21 +2,83 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="initial-scale=1.0,user-scalable=no,width=device-width">
-  <title>Title</title>
-  <style type="text/css">
-    * {
-      margin: 0;
-      padding: 0;
-      list-style: none;
-    }
-  </style>
-
+  <meta name="viewport"
+        content="width =device-width, initial-scale = 1.0, maximum-scale = 1.0, user-scalable = 0" />
+  <title>猜电影</title>
 </head>
+<style>
+  *{
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    text-decoration: none
+  }
+  html, body{
+    width: 100%;
+    height: 100%;
+  }
+  .cover{
+    width: 100% ;
+    text-align: center;
+  }
+  #btn{
+    border: 1px solid #00b600;
+    padding: .4rem;
+    border-radius: 5px;
+    margin-top: 1.5rem;
+    background: #fff;
+    color: #00b600;
+    font-size: 1rem;
+    font-weight: 700;
+  }
+  .list{
+    box-sizing: border-box;
+    padding: 1rem .5rem;
+    width: 100%;
+    overflow: hidden;
+  }
+  .list>.item {
+    width: 33.3333%;
+    height: 12rem;
+    box-sizing: border-box;
+    padding: .5rem .2rem;
+    float: left;
+  }
+
+  .list>.item>a{
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .list>.item>a>.cover{
+    width: 100%;
+    height: 8.5rem;
+  }
+  .list>.item>a>.cover>img{
+    display: block;
+    width: 100%;
+    height: 8rem;
+  }
+  .list>.item>a>.info>h3{
+    text-align: center;
+    font-size: .6rem;
+    color: #494949;
+  }
+  .list>.item>a>.info>.rank{
+    text-align: center;
+    font-size: .6rem;
+    color: #9b9b9b;
+  }
+</style>
 <body>
-<h2>这是一个ejs模板</h2>
-<ul id="list"></ul>
-<button id="btn">开始录音</button>
+<div class="cover">
+  <button id="btn">点击开始录音</button>
+</div>
+<ul class="list">
+
+</ul>
+<script type="text/javascript" src="./js/rem.js"></script>
 <script type="text/javascript" src="https://cdn.bootcss.com/zepto/1.0rc1/zepto.min.js"></script>
 <script type="text/javascript" src="http://res2.wx.qq.com/open/js/jweixin-1.4.0.js"></script>
 <script type="text/javascript">
@@ -61,13 +123,45 @@
                   let url = `http://api.douban.com/v2/movie/search?q=${res.translateResult}&count=5&callback=?`
 
                   $.getJSON(url,function(data){
-                    console.log(data);
                     let html = '';
                     const {subjects} = data;
                     subjects.forEach(function(item,index){
-                      html += `<li>${item.title}</li>`
+                      html +=`<li class="item">
+                                    <a href="javascript:">
+                                      <div class="cover">
+                                        <img src="${item.images.small}" alt="${item.title}" data-x="2000" data-y="2963" class="img-show" style="width: 100%;">
+                                      </div>
+                                      <div class="info">
+                                        <h3>${item.title}</h3>
+                                        <p class="rank">
+                                          <span>评分:</span>
+                                          <span class="rating">${item.rating.average}</span>
+                                        </p>
+                                      </div>
+                                    </a>
+                                  </li>`;
                     })
                     $('#list').html(html);
+                    //分享功能， 默认分享第一个电影数据
+                    wx.updateAppMessageShareData({
+                      title: subjects[0].title,
+                      desc: `电影评分：${subjects[0].rating.average}`,
+                      link: subjects[0].alt, // 分享链接
+                      imgUrl: subjects[0].images.small, // 分享图标
+                      success: function () {
+                        // 设置成功
+                        alert('分享到朋友或者qq好友');
+                      }
+                    })
+                    wx.updateTimelineShareData({
+                      title: subjects[0].title,
+                      link: subjects[0].alt, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
+                      imgUrl: subjects[0].images.small, // 分享图标
+                      success: function () {
+                        // 设置成功
+                        alert('分享到朋友圈或者qq空间');
+                      }
+                    })
                   })
 
                 }
