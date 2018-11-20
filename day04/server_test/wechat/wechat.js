@@ -51,7 +51,7 @@ class Wechat {
       console.log('这是非第一次')
       return Promise.resolve({access_token:this.access_token,expires_in:this.expires_in});
     }
-    return this.readAccessToken('accessToken.txt')
+    return this.readAccessToken('./accessToken.txt')
       .then(async res => {
         //本地有access_token
         //判断是否过期
@@ -61,13 +61,13 @@ class Wechat {
         }else{
           //过期
           const result =await this.getAccessToken();
-          await this.saveAccessToken('accessToken.txt',result);
+          await this.saveAccessToken('./accessToken.txt',result);
           return result;
         }
       })
       .catch(async err => {
         const result =await this.getAccessToken();
-        await this.saveAccessToken('accessToken.txt',result);
+        await this.saveAccessToken('./accessToken.txt',result);
         return result;
       })
       .then(res => {
@@ -117,14 +117,14 @@ class Wechat {
         } else {
           //过期了
           const ticket = await this.getTicket();
-          await this.saveTicket('ticket.txt', ticket);
+          await this.saveTicket('./ticket.txt', ticket);
           //作为then函数返回值， promise对象包着accessToken
           return ticket;
         }
       })
       .catch(async err => {
         const ticket = await this.getTicket();
-        await this.saveTicket('ticket.txt', ticket);
+        await this.saveTicket('./ticket.txt', ticket);
         return ticket;
       })
       .then(res => {

@@ -3,6 +3,8 @@
  */
 //引入一个将xml转换为js的模板
 const parseString = require('xml2js').parseString;
+//引入path
+const {resolve} = require('path');
 //引入fs
 const {writeFile, readFile} = require('fs');
 module.exports = {
@@ -45,8 +47,9 @@ module.exports = {
   //读写access_token和ticket
   //读
   writeFileAsync (filePath,data) {
+    const newPath = resolve(__dirname,'../wechat',filePath)
     return new Promise((resolve,reject) => {
-      writeFile(filePath,JSON.stringify(data),err => {
+      writeFile(newPath,JSON.stringify(data),err => {
         if (!err) {
           resolve();
         }else{
@@ -57,8 +60,9 @@ module.exports = {
   },
   //写
   readFileAsync (filePath) {
+    const newPath = resolve(__dirname,'../wechat',filePath)
     return new Promise((resolve,reject) => {
-      readFile(filePath,(err,data) => {
+      readFile(newPath,(err,data) => {
         if (!err) {
           const result = JSON.parse(data.toString())
           resolve(result);
