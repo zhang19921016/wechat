@@ -291,7 +291,7 @@ class Wechat {
 
 (async () => {
   const w = new Wechat();
-  //获取media_id
+/*  //获取media_id
   const result1 = await w.uploadMaterial('image','./1.jpg')
   //获取url
   const result2 = await w.uploadMaterial('pic','./2.jpg')
@@ -324,7 +324,7 @@ class Wechat {
   let result = await w.deleteMenu();
   console.log(result);
   result = await w.createMenu(require('./menu'));
-  console.log(result);
+  console.log(result);*/
 })()
 
 

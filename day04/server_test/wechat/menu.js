@@ -24,9 +24,9 @@ module.exports =  {
           "key": "help",
         },
         {
-          "name": "官网",
+          "name": "小说",
           "type": "view",
-          "url": "http://www.atguigu.com"
+          "url": "http://www.qidian.com"
         }
       ]
     }

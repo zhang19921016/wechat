@@ -9,6 +9,7 @@ const {url,appID} = require('../config')
 //引入wechat
 const Wechat = require('../wechat/wechat')
 const wechat = new Wechat();
+const Trailers = require('../models/trailers');
 
 const router = new express.Router();
 
@@ -37,8 +38,11 @@ router.get('/search',async (req,res) => {
     appID
   })
 })
-router.get('./movie',async (req,res) => {
-  res.render('movie',);
+router.get('/movie', async (req, res) => {
+  //去数据库中找到所有数据
+  const movies = await Trailers.find({}, {_id: 0, __v: 0, image: 0, src: 0, cover: 0})
+
+  res.render('movie', {movies, url});
 })
 
 module.exports = router;
